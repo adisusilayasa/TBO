@@ -25,7 +25,7 @@ function carirules($arr, $terminal)
 $adaobjek = false;
 $adasubjek = false;
 //koneksi database
-$db = new mysqli('localhost', 'root', '', 'text_search');
+$db = new mysqli('localhost', 'root', '', 'cnf');
 $hasil = $db->query("SELECT * FROM cnf")->fetch_all(MYSQLI_ASSOC);
 
 
@@ -36,7 +36,7 @@ $lwt = -1; //lwt ni jika k (string) digabung. msl: Luh Sari
 $z = -1; //variable increment index w
 $x = 0; //variable increment index kal
 $tandai = -2; //tandai ni jika w sebelumnya dah ada pasangan
-$zx = 0; ////variable increment index belumsama
+$zx = 0; ////variable increment index blmjodoh
 $ww = 0; ////variable increment index untuk concat kata
 for ($i = 0; $i < count($k); $i++) {
     // if ($i == $lwt) continue;
@@ -60,7 +60,7 @@ for ($i = 0; $i < count($k); $i++) {
         $ww = 0;
     }
     if ($z <= 0) {
-        $belumsama[$zx++] = [$z => $w[$z]];
+        $blmjodoh[$zx++] = [$z => $w[$z]];
         continue; //kalau masih di awal ga bisa dibandingin
     }
     if ($tandai != $tmpk) {
@@ -70,11 +70,11 @@ for ($i = 0; $i < count($k); $i++) {
         if ($c) {
             $kal[$x++] = [$z - 1 . "-" . $z => $c];
             $tandai = $i + 1;
-            if (isset($belumsama) && !empty($belumsama))
-                unset($belumsama[--$zx]);
+            if (isset($blmjodoh) && !empty($blmjodoh))
+                unset($blmjodoh[--$zx]);
             continue;
-        } else if (isset($kal)) $belumsama[$zx] = [$z => $w[$z]];
-        else $belumsama[$zx++] = [$z => $w[$z]];
+        } else if (isset($kal)) $blmjodoh[$zx] = [$z => $w[$z]];
+        else $blmjodoh[$zx++] = [$z => $w[$z]];
     }
 
     //cek antar kal dan w
@@ -86,37 +86,37 @@ for ($i = 0; $i < count($k); $i++) {
             $tx = $x - 1;
             $kal[$x++] = ["kal" . $tx . "-" . $z => $c];
             $tandai = $i + 1;
-            if (isset($belumsama) && !empty($belumsama))
-                unset($belumsama[--$zx]);
+            if (isset($blmjodoh) && !empty($blmjodoh))
+                unset($blmjodoh[--$zx]);
             continue;
-        } else $belumsama[$zx++] = [$z => $w[$z]];
+        } else $blmjodoh[$zx++] = [$z => $w[$z]];
     }
 }
 
 if (isset($w)) {
     if (isset($kal))
         for ($i = count($kal) - 1; $i >= 0; $i--) {
-            //cek antar kal dan belumsama
-            if (isset($belumsama) && !empty($belumsama)) {
-                for ($j = count($belumsama) - 1; $j >= 0; $j--) {
-                    $tmp = array_values($belumsama[$j]);
-                    $huh = key($belumsama[$j]);
+            //cek antar kal dan blmjodoh
+            if (isset($blmjodoh) && !empty($blmjodoh)) {
+                for ($j = count($blmjodoh) - 1; $j >= 0; $j--) {
+                    $tmp = array_values($blmjodoh[$j]);
+                    $huh = key($blmjodoh[$j]);
                     $huh++;
                     $ind = (string)$huh;
                     for ($o = 0; $o < count($kal); $o++)
                         if (strpos(key($kal[$o]), $ind) !== false)
                             $ind = $o;
-                    /*logikanya di belumsama tu ada index sm value terminalnya ex:(0 => Pn). trus di kal ada key index nya
-                misal (1-2 => P). nah dia nyari index value setelah belumsama, misal 0 setelahnya 1 maka dia cari yg 1-...
-                itu yang akan dibandingin klo belumsama nyimpen index 2 maka dia carai 3-... di variable kal */
+                    /*logikanya di blmjodoh tu ada index sm value terminalnya ex:(0 => Pn). trus di kal ada key index nya
+                misal (1-2 => P). nah dia nyari index value setelah blmjodoh, misal 0 setelahnya 1 maka dia cari yg 1-...
+                itu yang akan dibandingin klo blmjodoh nyimpen index 2 maka dia carai 3-... di variable kal */
                     $ttmp = array_values($kal[$ind]);
                     $gb = $tmp[0] . " " . $ttmp[0];
                     $c = carirules($hasil, $gb);
                     if ($c) {
-                        $kal[$x++] = [key($belumsama[$j]) . "-" . "kal" . $ind => $c];
+                        $kal[$x++] = [key($blmjodoh[$j]) . "-" . "kal" . $ind => $c];
                         $tandai = $i;
                         $i += 2;
-                        unset($belumsama[$j]);
+                        unset($blmjodoh[$j]);
                         continue;
                     }
                 }

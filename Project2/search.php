@@ -1,11 +1,11 @@
 <?php
 
-$db = new mysqli("localhost", "root", "", "cnf-cyk");
+$db = new mysqli("localhost", "root", "", "cnf");
 if ($db->connect_errno > 0) {
     die('Unable to connect to database [' . $db->connect_error . ']');
 }
 //variable yang dibutuhkan
-$val = trim($_GET['find'], " ");
+$val = trim($_GET['cari'], " ");
 
 if ($val == '') {
     echo "<script>
@@ -13,16 +13,16 @@ if ($val == '') {
     window.location.href='index.php';
     </script>";
 }
-$find = $val;
-$find = explode(" ", $find);
-$loop = count($find);
+$cari = $val;
+$cari = explode(" ", $cari);
+$loop = count($cari);
 $index = 0;
 for ($i = 0; $i < $loop; $i++) {
-    if ($find[$i] == '') unset($find[$i]);
+    if ($cari[$i] == '') unset($cari[$i]);
     else {
-        $tnp = $find[$i];
-        unset($find[$i]);
-        $find[$index] = $tnp;
+        $tnp = $cari[$i];
+        unset($cari[$i]);
+        $cari[$index] = $tnp;
         $index++;
     }
 }
@@ -54,17 +54,17 @@ $t = str_replace(" ", "", $val);
 $startState = 0;
 $jumlahState = strlen($t);
 $finalState = [];
-for ($i = 0; $i < count($find); $i++) {
-    array_push($finalState, strlen($find[$i]));
+for ($i = 0; $i < count($cari); $i++) {
+    array_push($finalState, strlen($cari[$i]));
 }
 
 foreach ($hasil as $ok) {
     $kalimat = [];
     $isi = $ok['isi'];
     $ada = []; //ada ini untuk variable index ke brapa dia
-    for ($i = 0; $i < count($find); $i++) {
-        $final = mencari($isi, $find[$i]);
-        if ($final['state'] == strlen($find[$i])) {
+    for ($i = 0; $i < count($cari); $i++) {
+        $final = mencari($isi, $cari[$i]);
+        if ($final['state'] == strlen($cari[$i])) {
             array_push($ada, $i);
             array_push($kalimat, $final['kalimat']);
         }
@@ -76,7 +76,7 @@ foreach ($hasil as $ok) {
         array_push($deskripsi, $kalimat[count($kalimat) - 1]);
         $tmp = "";
         for ($i = 0; $i < count($ada); $i++) {
-            $tmp = $tmp . $find[$ada[$i]] . ", ";
+            $tmp = $tmp . $cari[$ada[$i]] . ", ";
         }
         array_push($katanya, $tmp);
     }
@@ -84,16 +84,16 @@ foreach ($hasil as $ok) {
 
 $jmlHalaman = ceil($total / 5);
 
-function mencari($text, $find)
+function mencari($text, $cari)
 {
     $c = 0;
     for ($i = 0; $i < strlen($text); $i++) {
-        if (strtolower($text[$i]) == strtolower($find[$c])) {
+        if (strtolower($text[$i]) == strtolower($cari[$c])) {
             $c++; //lanjut next state
         } else {
             $c = 0; //kembali ke startstate
         }
-        if ($c == strlen($find)) {
+        if ($c == strlen($cari)) {
             if ($text[$i - $c] != " " || $text[$i + 1] != " ") {
                 $c = 0; //kembali ke startstate
                 continue;
@@ -115,7 +115,7 @@ function mencari($text, $find)
                 $katakiri = substr($text, $startkiri, $tmp);
             }
             $katakanan = substr($text, $i + 1, 150);
-            $ok['kalimat'] = $katakiri . " " . "<b>" . $find . "</b>" . $katakanan . "...";
+            $ok['kalimat'] = $katakiri . " " . "<b>" . $cari . "</b>" . $katakanan . "...";
             break;
         }
     }
@@ -141,7 +141,7 @@ function mencari($text, $find)
             <li class="nav-item">
                 <div class="justify-content-md-center">
                     <form class="form-inline my-2 my-lg-0 pencarian" action="" method="get">
-                        <input type="text" name="find" class="form-control mr-sm-2" style="width: 600px;" value="<?= $val ?>" required>
+                        <input type="text" name="cari" class="form-control mr-sm-2" style="width: 600px;" value="<?= $val ?>" required>
                         <input type="hidden" class="batasan" value="<?= $batasan ?>" name="batasan">
                         <button class="btn btn-info my-2 my-sm-0" type="submit">Search</button>
                         <button type="button" class="btn btn-danger ml-4 quinn">Quintuple</button>
@@ -174,15 +174,15 @@ function mencari($text, $find)
             <br>
             Delta : <br>
             <?php $temps = 0;
-            for ($i = 0; $i < count($find); $i++) {
-                for ($j = 0; $j < strlen($find[$i]); $j++) {
+            for ($i = 0; $i < count($cari); $i++) {
+                for ($j = 0; $j < strlen($cari[$i]); $j++) {
                     if ($i > 0)
                         if ($temps == $finalState[$i - 1])
-                            echo "δ(q0," . $find[$i][$j] . ") = q" . ++$temps . "<br>";
+                            echo "δ(q0," . $cari[$i][$j] . ") = q" . ++$temps . "<br>";
                         else
-                            echo "δ(q" . $temps . ", " . $find[$i][$j] . ") = q" . ++$temps . "<br>";
+                            echo "δ(q" . $temps . ", " . $cari[$i][$j] . ") = q" . ++$temps . "<br>";
                     else
-                        echo "δ(q" . $temps . ", " . $find[$i][$j] . ") = q" . ++$temps . "<br>";
+                        echo "δ(q" . $temps . ", " . $cari[$i][$j] . ") = q" . ++$temps . "<br>";
                 }
             } ?>
         </div>
@@ -204,17 +204,17 @@ function mencari($text, $find)
         <nav class="my-4">
             <ul class="pagination">
                 <li class="page-item">
-                    <a class="page-link" href="?find=<?= $val ?>&batasan=<?= $batasan ?>&page=<?= $page - 1 ?>" aria-label="Previous">
+                    <a class="page-link" href="?cari=<?= $val ?>&batasan=<?= $batasan ?>&page=<?= $page - 1 ?>" aria-label="Previous">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
                 <?php for ($i = 1; $i <= $jmlHalaman; $i++) : ?>
                     <li class="page-item <?php if ($page == $i) echo 'active'; ?>">
-                        <a class="page-link" href="?find=<?= $val ?>&batasan=<?= $batasan ?>&page=<?= $i ?>"><?= $i ?></a>
+                        <a class="page-link" href="?cari=<?= $val ?>&batasan=<?= $batasan ?>&page=<?= $i ?>"><?= $i ?></a>
                     </li>
                 <?php endfor; ?>
                 <li class="page-item">
-                    <a class="page-link" href="?find=<?= $val ?>&batasan=<?= $batasan ?>&page=<?= $page + 1 ?>" aria-label="Next">
+                    <a class="page-link" href="?cari=<?= $val ?>&batasan=<?= $batasan ?>&page=<?= $page + 1 ?>" aria-label="Next">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>

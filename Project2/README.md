@@ -1,0 +1,5 @@
+- Pastikan sudah terinstal xampp (apache dan mysql)
+- Buat database baru dengan nama 'cnf' (Jika ingin beda ikuti langkah dibawah)
+- Jika database baru bukan cnf maka ganti 'cnf' pada file search.php pada line 3 dengan database anda.
+- Import table (dokumen.sql) ke database yang sudah dibuat ke phpmyadmin
+- Run di localhost
